@@ -1,0 +1,2 @@
+instance,java_memory,java_agents,java_debug_port,java_debug_suspend,jmx_port,jmx_pass_file,jmx_host,jbpm_deploy,java_home,log4j,snmp_port,snmp_interface
+example-inst,-Xmx512m -XX:MaxPermSize=128m -Xss196k,#$CATALINA_BASE/newrelic/newrelic.jar,#44479,n,19262,/home/example-inst/jmx.properties,localhost,false,/opt/jdk6,log4j-prod.properties,,

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./stop_force $1
+./start $1

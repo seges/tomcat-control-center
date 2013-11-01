@@ -1,0 +1,50 @@
+#!/bin/bash
+
+WORKDIR=`dirname $0`
+. $WORKDIR/../conf/tcc.conf
+. $WORKDIR/common.sh
+. $WORKDIR/utils.sh
+
+function print_usage {
+        echo "Dumps informations (heap, class history, finalizer info) from running instance"
+        echo ""
+        echo "Usage: `basename $0` <instance_name>"
+        echo "       instance_name - the name of Tomcat instance to be used for command execution"
+}
+
+if [ ${#@} -lt 1 ] ; then
+        print_usage
+        exit 1
+fi
+
+setup_env "" "$1" "${@:2}"
+
+PID=`cat $INST_PID_FILE`
+
+timestamp MON_STAMP
+MONITOR_PREFIX="$INST_NAME-$PID-$MON_STAMP"
+MONITOR_DIR="$LOGS_DIR/monitor"
+MONITOR_FILE_PREFIX="$MONITOR_DIR/$MONITOR_PREFIX"
+
+if [ ! -d $MONITOR_DIR ] ; then
+	mkdir $MONITOR_DIR
+fi
+
+JAVA_BIN="$JAVA_HOME/bin"
+
+TMP_OUT="$MONITOR_FILE_PREFIX-finalizerinfo.dump"
+$JAVA_BIN/jmap -finalizerinfo $PID > $TMP_OUT
+TMP_OUT="$MONITOR_FILE_PREFIX-heap.dump"
+$JAVA_BIN/jmap -heap $PID > $TMP_OUT
+TMP_OUT="$MONITOR_FILE_PREFIX-histo.dump"
+$JAVA_BIN/jmap -histo $PID > $TMP_OUT
+
+TMP_OUT="$MONITOR_FILE_PREFIX-vmstat.dump"
+vmstat 1 1 > $TMP_OUT
+TMP_OUT="$MONITOR_FILE_PREFIX-prstat.dump"
+prstat 1 1 > $TMP_OUT
+TMP_OUT="$MONITOR_FILE_PREFIX-iostat.dump"
+iostat 1 1 > $TMP_OUT
+TMP_OUT="$MONITOR_FILE_PREFIX-df.dump"
+df -h > $TMP_OUT
+

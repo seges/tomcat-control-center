@@ -1,0 +1,3 @@
+Directory for placing custom scripts and executable stuff related to this Tomcat instance.
+
+Custom 'setenv.sh' script is executed during startup/shutdown as part of 'catalina.sh' execution. This is the place for triggering custom actions for the Tomcat instance.

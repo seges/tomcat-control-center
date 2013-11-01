@@ -1,0 +1,4 @@
+#!/bin/bash
+
+WORKDIR=`dirname $0`
+$WORKDIR/instance.sh $1 stop -force

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ ${#@} -lt 1 ] ; then
+	echo "Usage: `basename $0` <instance_name>"
+	exit 1
+fi
+
+
+workdir=`dirname $0`
+instance_dir="$workdir/../instances/$1"
+log_dir="$instance_dir/logs"
+stamp=`date +%Y%m%d_%H%M%S`
+back_dir="$instance_dir/logs_$stamp"
+
+$workdir/stop_force $1
+mv $log_dir $back_dir
+mkdir "$log_dir"
+$workdir/start $1

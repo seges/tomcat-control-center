@@ -1,0 +1,6 @@
+<!-- 
+docBase specifies the application directory or WAR file. Use catalina.base property to navigate to apps directory of the Tomcat instance.
+
+Any resource needed by the application should be defined within the context
+-->
+<Context docBase="${catalina.base}/apps/examplesApp.war" reloadable="true" antiResourceLocking="false" antiJARLocking="false" />

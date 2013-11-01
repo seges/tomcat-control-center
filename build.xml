@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<project name="tcc" default="dist">
+	<property name="version" value="1.3.0"/>
+	<property name="src" location="src" />
+	<property name="target" location="target" /> 
+	<property name="target.tcc" location="${target}/tcc" /> 
+
+	<target name="init">
+		<tstamp />
+		<mkdir dir="${target}"/>
+		<mkdir dir="${target.tcc}"/>
+		<mkdir dir="${target.tcc}/bin"/>
+		<mkdir dir="${target.tcc}/coredumps"/>
+		<mkdir dir="${target.tcc}/instances"/>
+		<mkdir dir="${target.tcc}/logs"/>
+		<mkdir dir="${target.tcc}/templates"/>
+		<mkdir dir="${target.tcc}/templates/tcc_template"/>
+		<mkdir dir="${target.tcc}/var"/>
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${target}" />
+	</target>
+
+	<target name="dist" depends="clean, init">
+		<tar destfile="${target}/tcc-${version}.tar.gz" compression="gzip" basedir="${target}" excludes="**/.svn, **/.svn/*">
+			<tarfileset dir="." prefix="tcc" filemode="744">
+                                <include name="post_install.sh" />
+                        </tarfileset>
+			<tarfileset dir="${src}" prefix="tcc" filemode="755">
+ 				<include name="**/*.sh" />
+			</tarfileset>			
+			<tarfileset dir="${src}" prefix="tcc">
+ 				<exclude name="**/*.sh" />
+ 				<exclude name="**/*.svn" />
+				<exclude name="**/*.svn/*" />
+			</tarfileset>			
+		</tar>
+	</target>
+</project>
