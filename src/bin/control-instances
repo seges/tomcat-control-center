@@ -1,0 +1,41 @@
+#!/bin/bash
+
+WORKDIR=`dirname $0`
+. $WORKDIR/common.sh
+. $WORKDIR/config_common.sh
+
+function print_usage {
+	echo "Batch control of all instances. It is used to execute dedicated action on the instances not explicitly excluded."
+	echo ""
+	echo "Usage: `basename $0` <action_name>"
+	echo "       action_name - name of the action to be performed, e.g. start, stop_force, ..."
+}
+
+if [ ${#@} -lt 1 ] ; then
+	print_usage
+	exit 1
+fi
+
+# we set "root" as instance user so we can search in config file easily
+setup_env "" "root" "undefined"
+
+if [ ! -f "$INSTS_CONF" ] ; then
+	echo "Instance configuration does not exist!"
+	exit 42
+fi
+
+all_instances=`cat $INSTS_CONF | grep ".tmpl" | cut -d "." -f 1`
+
+for inst in $all_instances
+do
+	INST_NAME=$inst
+	conf_grep_value "startup" "STARTUP"
+	if [ "$STARTUP" == "false" ]; then
+		continue
+	fi
+
+	conf_grep_value "user" "RUN_AS"
+	echo "Going to execute $1 with $RUN_AS"
+	su - $RUN_AS -c "hh=`pwd`;echo \"Executing as \$hh : $WORKDIR/$1 $inst\"; $WORKDIR/$1 $inst"
+done
+
