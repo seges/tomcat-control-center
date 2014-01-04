@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <project name="tcc" default="dist">
-	<property name="version" value="1.3.0"/>
+	<property name="version" value="1.4.0"/>
 	<property name="src" location="src" />
 	<property name="target" location="target" /> 
 	<property name="target.tcc" location="${target}/tcc" /> 
