@@ -12,6 +12,9 @@ resource_keys = { "db": [ "instance", "name", "initialSize", "maxActive", "maxId
 
 resource_types = { "db": ["javax.sql.DataSource", "javax.sql.XADataSource"], "mail" : ["javax.mail.Session"], "rmi" : ["java.rmi.registry.Registry"], "mq": ["com.sun.messaging.Queue"], "env": ["java.lang.String"] }
 
+# "attrs" contains static, additional attributes to the tag
+resource_tags = { "db" : {"tag": "Resource", "attrs": {"auth": "Container"}}, "mail": {"tag": "Resource", "attrs": {"auth": "Container"}}, "rmi": {"tag": "Resource", "attrs": {"auth": "Container"}}, "mq": {"tag": "Resource", "attrs": {"auth": "Container"}}, "env": {"tag": "Environment"} }
+
 class CommentedTreeBuilder(ElementTree.TreeBuilder):
 	def comment(self, data):
 		self.start(ElementTree.Comment, {})
@@ -39,7 +42,7 @@ def walk_instances(resource_type = "db", mode = None):
 				first = False
 				continue
 			if len(row) != len(resource_keys[resource_type]):
-				print("incomplete row " + str(row))
+				print("incomplete row ( " + str(len(row)) + " vs " + str(len(resource_keys[resource_type])) + " ) " + str(row))
 				continue
 			inst = row[0]
 			if oldInst is None:
@@ -64,12 +67,13 @@ def walk_instances(resource_type = "db", mode = None):
 			items[row[1]] = item
 			oldInst = inst
 
-		print("last writing " + oldInst + " with " + str(items))
+		print("last writing " + str(oldInst) + " with " + str(items))
 		result[oldInst] = items
 
 		#return
 		print("result = " + str(result))
 		execute_fn = update_tomcat_pool
+		create_fn = create_tomcat_pool
 	else:
 		csvFile = open("resources-" + resource_type + ".csv", "wb")
 		result = csv.writer(csvFile)
@@ -103,8 +107,28 @@ def walk_instances(resource_type = "db", mode = None):
 			else:
 				print(str(resource))
 
+		if mode == "update" and create_fn is not None:
+			resource_type_type = resource_types[resource_type][0]
+			create_fn(resource_type_type, resource_tags[resource_type], instance, result, globalNamingResource)
+			modified = True
+
 		if mode == "update" and modified:
 			update(tree, instance, serverFile)
+
+def create_tomcat_pool(resource_type_type, resource_tag, instance, result, globalNamingResource):
+	print("yet unprocessed resources: " + str(result))
+	# resources not present - these need to be inserted
+	resources = result[instance]
+
+	for name, resource_attrs in resources.items():
+		attrs = { "name" : name }
+		if "attrs" in resource_tag:
+			attrs.update(resource_tag["attrs"])
+		attrs.update(resource_attrs)
+
+		print("creating " + str(resource_tag["tag"]) + " with: " + str(attrs))
+		ET.SubElement(globalNamingResource, resource_tag["tag"], attrs)	
+			
 
 def update(tree, instance, serverFile):
 	# for test purposes
@@ -142,6 +166,9 @@ def update_tomcat_pool(resource_type, instance, result, resource):
 		print("Setting resource " + key + " = " + value)
 		resource.set(key, value)
 		modified = True
+
+	if modified:
+		del items[name]
 	
 	return modified
 
