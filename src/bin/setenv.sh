@@ -7,7 +7,7 @@ INST_NAME=`basename $CATALINA_BASE`
 
 echo "inst name = $INST_NAME"
 echo "catalina = $CATALINA_BASE"
-python $WORKDIR/ReadInstanceSetEnv.py $CATALINA_BASE/../setenv.csv $INST_NAME > $config
+python $CATALINA_BASE/../ReadInstanceSetEnv.py $CATALINA_BASE/../setenv.csv $INST_NAME > $config
 
 if [ -f $config ]; then
 	echo "Loading $config"
@@ -66,6 +66,10 @@ fi
 
 if [ -n "$java_home" ]; then
 	JAVA_HOME=$java_home
+fi
+
+if [ -n "$env" ]; then
+	CATALINA_OPTS="$CATALINA_OPTS -Denv=$env"
 fi
 
 echo "Final CATALINA_OPTS=$CATALINA_OPTS"
