@@ -124,7 +124,8 @@ def create_tomcat_pool(resource_type_type, resource_tag, instance, result, globa
 		attrs = { "name" : name }
 		if "attrs" in resource_tag:
 			attrs.update(resource_tag["attrs"])
-		attrs.update(resource_attrs)
+		non_empty_attrs = dict((k, v) for k, v in resource_attrs.iteritems() if v)
+		attrs.update(non_empty_attrs)
 
 		print("creating " + str(resource_tag["tag"]) + " with: " + str(attrs))
 		ET.SubElement(globalNamingResource, resource_tag["tag"], attrs)	
