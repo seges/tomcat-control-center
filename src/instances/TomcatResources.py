@@ -8,7 +8,7 @@ import sys
 import shutil
 
 # instance and name must be the first two items
-resource_keys = { "db": [ "instance", "name", "initialSize", "maxActive", "maxIdle", "minIdle", "defaultAutoCommit", "driverClassName", "fairQueue", "jmxEnabled", "logAbandoned", "maxWait", "minEvictableIdleTimeMillis", "username", "password", "removeAbandoned", "removeAbandonedTimeout", "testOnBorrow", "testOnReturn", "testWhileIdle", "timeBetweenEvictionRunsMillis", "type", "url", "useEquals", "validationQuery", "factory", "jdbcInterceptors" ], "mail": [ "instance", "name", "mail.smtp.auth","mail.smtp.host","mail.smtp.port","mail.smtp.user","mail.user","username","mail.smtp.password","mail.password", "password","mail.smtp.socketFactory.class","mail.smtp.starttls.enable", "factory" ], "rmi": [ "instance", "name", "port", "factory" ], "env": [ "instance", "name", "value" ], "connector": [ "instance", "shutdown", "http" ] }
+resource_keys = { "db": [ "instance", "name", "initialSize", "maxActive", "maxIdle", "minIdle", "defaultAutoCommit", "driverClassName", "fairQueue", "jmxEnabled", "logAbandoned", "maxWait", "minEvictableIdleTimeMillis", "username", "password", "removeAbandoned", "removeAbandonedTimeout", "testOnBorrow", "testOnReturn", "testWhileIdle", "timeBetweenEvictionRunsMillis", "type", "url", "useEquals", "validationQuery", "factory", "jdbcInterceptors" ], "mail": [ "instance", "name", "mail.smtp.auth","mail.smtp.host","mail.smtp.port","mail.smtp.user","mail.user","username","mail.smtp.password","mail.password", "password","mail.smtp.socketFactory.class","mail.smtp.starttls.enable", "factory" ], "rmi": [ "instance", "name", "port", "factory" ], "env": [ "instance", "name", "value" ], "connector": [ "instance", "shutdown", "HTTP/1.1", "AJP/1.3" ] }
 
 resource_types = { "db": ["javax.sql.DataSource", "javax.sql.XADataSource"], "mail" : ["javax.mail.Session"], "rmi" : ["java.rmi.registry.Registry"], "mq": ["com.sun.messaging.Queue"], "env": ["java.lang.String"] }
 
@@ -230,7 +230,7 @@ def walk_connectors(resource_type = "connector", mode = None):
 			#if oldInst == inst:
 			oldInst = inst
 
-		print("last writing " + oldInst + " with " + str(items))
+		print("last writing " + str(oldInst) + " with " + str(items))
 		result[oldInst] = items
 
 		#print("result = " + str(result))
@@ -266,8 +266,7 @@ def walk_connectors(resource_type = "connector", mode = None):
 		for resource in service.findall("Connector"):
 			protocol = resource.get("protocol")
 			#print("protocol", protocol)
-			if protocol == "HTTP/1.1":
-				modified = execute_fn(resource, result, instance, item)
+			modified = execute_fn(resource, result, instance, item, protocol)
 
 		if mode == "update" and modified:
 			update(tree, instance, serverFile)
@@ -279,13 +278,16 @@ def prepare_read_connector(root, instance, result, item):
 	item.append(instance)
 	item.append(root.get("port"))
 
-def read_connector(resource, result, instance, item):				
+def read_connector(resource, result, instance, item, protocol):
 	item.append(resource.get("port"))
 	result.writerow(item)
 	return False
 
-def update_connector(resource, result, instance, item):
-	resource.set("port", result[instance]["http"])
+def update_connector(resource, result, instance, item, protocol):
+	if protocol not in result[instance]:
+		return
+
+	resource.set("port", result[instance][protocol])
 	return True
 
 if __name__ == '__main__':
