@@ -117,6 +117,10 @@ def walk_instances(resource_type = "db", mode = None):
 
 def create_tomcat_pool(resource_type_type, resource_tag, instance, result, globalNamingResource):
 	print("yet unprocessed resources: " + str(result))
+
+	if instance not in result:
+		return
+
 	# resources not present - these need to be inserted
 	resources = result[instance]
 
