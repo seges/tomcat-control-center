@@ -39,6 +39,7 @@ def walk_instances(resource_type = "db", mode = None):
 		for row in reader:
 			print("row = " + str(row))
 			if first:
+				read_header(resource_type, row)
 				first = False
 				continue
 			if len(row) != len(resource_keys[resource_type]):
@@ -115,8 +116,16 @@ def walk_instances(resource_type = "db", mode = None):
 		if mode == "update" and modified:
 			update(tree, instance, serverFile)
 
+def read_header(resource_type, row):
+	if row[0] != "instance":
+		return
+
+	resource_keys[resource_type] = row
+	print "read header [{}]: {}".format(resource_type, resource_keys[resource_type])
+
+
 def create_tomcat_pool(resource_type_type, resource_tag, instance, result, globalNamingResource):
-	print("yet unprocessed resources: " + str(result))
+	print "yet unprocessed resources: {}".format(result)
 
 	if instance not in result:
 		return
