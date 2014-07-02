@@ -35,7 +35,7 @@ fi
 # **** Java Agents ****
 # e.g. Newrelic = $CATALINA_BASE/newrelic/newrelic.jar
 if [ -n "$java_agents" ]; then
-	JAVA_OPTS="$JAVA_OPTS -javaagent:$java_agents"
+	JAVA_OPTS="$JAVA_OPTS -javaagent:$java_agents -Dnewrelic.config.file=$CATALINA_BASE/newrelic/newrelic.yml"
 fi
 
 # **** Java Debugging ****
